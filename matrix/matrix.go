@@ -183,6 +183,14 @@ func (matrix *Matrix)GetColumn(index int) ([]float64,error) {
 	return output,nil
 }
 
+func (matrix *Matrix)getColumn(index int) []*float64 {
+	output := make([]*float64,matrix.Shape[0])
+	for temp:=0;temp<matrix.Shape[0];temp++{
+		output[temp] = matrix.Matrix[temp][index]
+	}
+	return output
+}
+
 func (matrix *Matrix)SetArray(input []float64) *Matrix {
 	newMatrix := make([][]*float64, 1)
 	newVector := make([]*float64, len(input))
@@ -194,15 +202,41 @@ func (matrix *Matrix)SetArray(input []float64) *Matrix {
 	return &Matrix{Shape: [2]int{1,len(input)}, Matrix: newMatrix}
 }
 
-func (matrix *Matrix)SetMatrix(input [][]float64)*Matrix{
+func (matrix *Matrix)SetMatrix(input *Matrix)*Matrix{
+	newMatrix := make([][]*float64, input.Shape[0])
+
+	for index:=0; index < input.Shape[0]; index++{
+		newVector := make([]*float64, input.Shape[1])
+		for key,val := range input.Matrix[index]{
+			var newValue float64 = *val
+			newVector[key] = &newValue
+		}
+		newMatrix[index] = newVector
+	}
+	return &Matrix{Shape: [2]int{input.Shape[0],input.Shape[1]}, Matrix: newMatrix}
+}
+
+func (matrix *Matrix)SetMatrixValue(input [][]float64)*Matrix{
 	newMatrix := make([][]*float64, len(input))
 	for index:=0; index < len(input); index++{
 		newVector := make([]*float64, len(input[0]))
-		for index1:=0; index1<len(input[1]);index1++ {
+		for index1:=0; index1<len(input[0]);index1++ {
 			var value = input[index][index1]
 			newVector[index1] = &value
 		}
 		newMatrix[index] = newVector
 	}
 	return &Matrix{Shape: [2]int{len(input),len(input[0])}, Matrix: newMatrix}
+}
+
+func (matrix *Matrix)ToValue()[][]float64{
+	output := make([][]float64, matrix.Shape[0])
+	for index,list := range matrix.Matrix{
+		newVector := make([]float64, matrix.Shape[1])
+		for key,val := range list{
+			newVector[key] = *val
+		}
+		output[index] = newVector
+	}
+	return output
 }
